@@ -1,3 +1,12 @@
 data
 .agents
 .DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+var/
+web/node_modules/
+web/dist/
+web/.vite/

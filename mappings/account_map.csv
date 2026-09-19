@@ -1,0 +1,55 @@
+country_code,account_code,sha_code,srhr_code,confidence,generic,notes
+CTA,2110101,HC.7,SRHR.NA,medium,false,Salaries treated as administration; could include service-delivery staff
+CTA,2210201,HC.7,SRHR.NA,medium,false,Overhead communication supplies
+CTA,2210301,HC.7,SRHR.NA,low,false,Domestic travel purpose is not specified
+CTA,2211101,HC.5.1,SRHR.NA,medium,false,Essential medicines; SRHR share unknown
+CTA,2211102,HC.5.1,SRHR.FP,high,false,Contraceptives and family planning commodities
+CTA,2211103,HC.5.1,SRHR.NA,medium,false,Vaccine commodity (not the immunisation programme)
+CTA,2211105,HC.5.1,SRHR.HIV,high,false,HIV test kits and ARVs
+CTA,2211110,HC.5.1,SRHR.MH,high,false,Maternity supplies and delivery kits
+CTA,2211199,HC.5.1,SRHR.NA,medium,false,General medical consumables
+CTA,2211201,HC.4,SRHR.NA,medium,false,Laboratory reagents
+CTA,2211305,HC.6.2,SRHR.NA,high,false,Immunisation outreach programme
+CTA,2211306,HC.6.4,SRHR.MH,high,false,Antenatal outreach / healthy-condition monitoring
+CTA,2211308,HC.6.1,SRHR.AH,high,false,Youth SRH counselling
+CTA,2211320,HC.6.3,SRHR.RC,high,false,Cervical cancer screening
+CTA,2211404,HC.1.3,SRHR.SGBV,medium,false,SGBV survivor support; could alternatively be prevention
+CTA,2211407,HC.7,SRHR.NA,medium,false,Facility cleaning treated as administration
+CTA,2211501,HC.7,SRHR.NA,low,false,Fuel without a specified health function
+CTA,2211511,HC.7,SRHR.NA,medium,false,Printing and stationery
+CTA,3110101,,SRHR.NA,low,false,Capital construction is outside the simplified SHA current-HC list
+CTA,3110701,,SRHR.NA,low,false,Capital ambulance purchase is outside the simplified SHA current-HC list
+CTB,610100,HC.7,SRHR.NA,medium,false,Salaries treated as administration
+CTB,610200,HC.7,SRHR.NA,medium,true,Generic operating expenses; keyword fallback only on trusted text
+CTB,611010,HC.5.1,SRHR.NA,medium,false,Essential medicines
+CTB,611015,HC.5.1,SRHR.FP,high,false,Contraceptives and family planning commodities
+CTB,611020,HC.5.1,SRHR.NA,medium,false,Vaccine commodity
+CTB,611025,HC.5.1,SRHR.HIV,high,false,HIV test kits and antiretrovirals
+CTB,611030,HC.5.1,SRHR.MH,high,false,Obstetric / delivery kits
+CTB,611040,HC.4,SRHR.NA,medium,false,Laboratory reagents
+CTB,612010,HC.6.1,SRHR.MH,high,false,Maternal health information/education campaigns
+CTB,612015,HC.6.1,SRHR.HIV,high,false,HIV information/education campaigns
+CTB,612020,HC.6.3,SRHR.RC,high,false,Cervical cancer screening
+CTB,612025,HC.6.1,SRHR.AH,high,false,Adolescent SRH counselling
+CTB,612030,HC.1.3,SRHR.SGBV,medium,false,GBV survivor support
+CTB,613010,HC.7,SRHR.NA,medium,false,Facility cleaning
+CTB,613020,HC.7,SRHR.NA,low,false,Fuel and lubricants
+CTB,613030,HC.7,SRHR.NA,medium,false,Printing and office supplies
+CTB,614010,,SRHR.NA,low,false,Capital construction is outside the simplified SHA current-HC list
+CTB,614020,,SRHR.NA,low,false,Capital ambulance purchase is outside the simplified SHA current-HC list
+CTC,2210101,HC.7,SRHR.NA,medium,false,Salaries treated as administration
+CTC,2210105,HC.7,SRHR.NA,medium,false,Office supplies
+CTC,2211001,HC.5.1,SRHR.NA,medium,false,Essential medicines
+CTC,2211005,HC.5.1,SRHR.FP,high,false,Contraceptives
+CTC,2211010,HC.5.1,SRHR.NA,medium,false,Vaccines and cold-chain supplies as commodities
+CTC,2211015,HC.5.1,SRHR.HIV,high,false,HIV test kits and antiretrovirals
+CTC,2211020,HC.5.1,SRHR.MH,high,false,Delivery kits and obstetric supplies
+CTC,2211050,HC.4,SRHR.NA,medium,false,Laboratory reagents
+CTC,2212010,HC.6.1,SRHR.AH,high,false,Youth SRH health promotion
+CTC,2212015,HC.6.3,SRHR.RC,high,false,Cervical cancer screening campaign
+CTC,2212020,HC.1.3,SRHR.SGBV,medium,false,GBV survivor psycho-social support
+CTC,2212030,HC.6.4,SRHR.MH,high,false,ANC outreach
+CTC,2213010,HC.7,SRHR.NA,medium,false,Facility cleaning contracts
+CTC,2213020,HC.7,SRHR.NA,low,false,Fuel and transport without a specified function
+CTC,2214010,,SRHR.NA,low,false,Capital construction is outside the simplified SHA current-HC list
+CTC,2214020,,SRHR.NA,low,false,Capital ambulance purchase is outside the simplified SHA current-HC list

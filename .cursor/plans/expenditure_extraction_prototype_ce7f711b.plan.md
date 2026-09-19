@@ -4,22 +4,22 @@ overview: Build a small, extensible prototype that ingests three heterogeneous c
 todos:
   - id: schema-model
     content: Define SQLModel tables + HarmonisedRecord (lineage, flags, classification) in pyproject/uv project
-    status: pending
+    status: completed
   - id: adapters
     content: Implement country adapters A (CSV), C (JSON + sub-lines), B (Excel preamble/TOTAL/FR amounts/Plan_comptable)
-    status: pending
+    status: completed
   - id: classify
     content: Seed CoA maps + EN/FR keyword rules; CoA-first classifier with untrusted-text detection and confidence
-    status: pending
+    status: completed
   - id: api
     content: FastAPI routers with Annotated deps, return types, sync SQLite handlers; serve Vite build via app.frontend()
-    status: pending
+    status: completed
   - id: ui
     content: "Vite + TS + shadcn (init --template vite): Sidebar/Card/Chart/Table/Field forms; SWR for API data"
-    status: pending
+    status: completed
   - id: docs
     content: "README + architecture/classification write-up: why CoA-first, uncertainty, evolution, out of scope"
-    status: pending
+    status: completed
 isProject: false
 ---
 

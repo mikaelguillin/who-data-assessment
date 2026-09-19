@@ -1,0 +1,15 @@
+language,pattern,sha_code,srhr_code,priority,notes
+en,contracept|family planning,HC.5.1,SRHR.FP,10,Family planning commodities or services
+fr,contracept|planification familiale,HC.5.1,SRHR.FP,10,Produits de planification familiale
+en,antenatal|maternal|maternity|obstetric|delivery kit,HC.6.4,SRHR.MH,20,Maternal health
+fr,maternelle|obstetric|accouchement|antenatal,HC.6.4,SRHR.MH,20,Sante maternelle
+en,hiv|antiretroviral|\barv\b,HC.5.1,SRHR.HIV,30,HIV commodities
+fr,vih|antiretroviral|sida,HC.5.1,SRHR.HIV,30,VIH
+en,sgbv|gbv|gender-based|gender based,HC.1.3,SRHR.SGBV,40,SGBV response
+fr,\bvbg\b|violence,HC.1.3,SRHR.SGBV,40,Violences basees sur le genre
+en,cervical|cancer screening,HC.6.3,SRHR.RC,50,Reproductive cancer screening
+fr,cancer du col|depistage,HC.6.3,SRHR.RC,50,Depistage des cancers
+en,youth srh|adolescent,HC.6.1,SRHR.AH,60,Adolescent SRH
+fr,adolescent|srh,HC.6.1,SRHR.AH,60,SRH des adolescents
+en,immunis|vaccin,HC.6.2,SRHR.NA,70,Immunisation if not already CoA-mapped
+fr,vaccin|immunis,HC.6.2,SRHR.NA,70,Immunisation
