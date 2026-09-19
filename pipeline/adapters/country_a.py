@@ -31,13 +31,14 @@ def parse_date_dmy(raw: str | None) -> datetime | None:
 
 
 class CountryAAdapter(CountryAdapter):
-    country_code = "CTA"
-    source_filename = "country_a_expenditure.csv"
     source_format = "csv"
+    layout_id = "csv_a"
+    default_currency = "KES"
+    default_language = "en"
 
-    def load(self, data_dir: Path) -> AdapterResult:
-        path = self.source_path(data_dir)
-        with path.open(newline="", encoding="utf-8") as handle:
+    def load(self, path: Path, country_code: str) -> AdapterResult:
+        filename = path.name
+        with path.open(newline="", encoding="utf-8-sig") as handle:
             rows = list(csv.DictReader(handle))
 
         id_counts = Counter((row.get("TXN_ID") or "").strip() for row in rows)
@@ -81,9 +82,9 @@ class CountryAAdapter(CountryAdapter):
 
             records.append(
                 HarmonisedRecord(
-                    country_code=self.country_code,
+                    country_code=country_code,
                     source_transaction_id=source_id,
-                    source_row_ref=f"{self.source_filename}:line:{index}",
+                    source_row_ref=f"{filename}:line:{index}",
                     transaction_date=parsed_date.date() if parsed_date else None,
                     fiscal_year=str(parsed_date.year) if parsed_date else None,
                     ministry_code=row.get("MINISTRY_CODE"),
@@ -103,7 +104,7 @@ class CountryAAdapter(CountryAdapter):
 
         country_accounts = [
             CountryAccount(
-                country_code=self.country_code,
+                country_code=country_code,
                 account_code=code,
                 account_label=label,
                 source="derived",
@@ -111,9 +112,12 @@ class CountryAAdapter(CountryAdapter):
             for code, label in sorted(accounts.items())
         ]
         return AdapterResult(
-            country_code=self.country_code,
-            source_filename=self.source_filename,
+            country_code=country_code,
+            source_filename=filename,
             source_format=self.source_format,
+            layout_id=self.layout_id,
             records=records,
             accounts=country_accounts,
+            primary_currency=self.default_currency,
+            language=self.default_language,
         )

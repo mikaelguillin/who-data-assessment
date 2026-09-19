@@ -4,17 +4,16 @@
 
 Countries send expenditure extracts that differ in format, language, chart of accounts, currency, and data quality. The organisation needs a repeatable way to ingest those files, store a common record, classify against SHA and SRHR, and let an analyst review uncertain rows.
 
-This prototype demonstrates that path for three synthetic countries. It is not an IFMIS integration and not a full System of Health Accounts implementation.
+This prototype demonstrates that path for uploaded extracts in three known layouts. It is not an IFMIS integration and not a full System of Health Accounts implementation.
 
 ```mermaid
 flowchart LR
   subgraph sources [Raw sources]
-    A[Country A CSV]
-    B[Country B Excel]
-    C[Country C JSON]
+    Upload[Uploaded CSV Excel or JSON]
   end
   subgraph pipeline [Python pipeline]
-    Adapt[Country adapters]
+    Detect[Layout detection]
+    Adapt[Layout parsers]
     Harm[Harmonise plus quality flags]
     Class[CoA maps plus keyword fallback]
     DB[(SQLite)]
@@ -23,9 +22,7 @@ flowchart LR
     API[FastAPI]
     UI[React TypeScript shadcn]
   end
-  A --> Adapt
-  B --> Adapt
-  C --> Adapt
+  Upload --> Detect --> Adapt
   Adapt --> Harm --> Class --> DB
   DB --> API --> UI
 ```
@@ -34,15 +31,15 @@ flowchart LR
 
 | Piece | Role |
 | --- | --- |
-| `pipeline/adapters/` | One module per country. Each emits `HarmonisedRecord` plus quality flags. |
+| `pipeline/adapters/` | One parser per extract layout (CSV / Excel / JSON). Each emits `HarmonisedRecord` plus quality flags. |
 | `pipeline/quality.py` | Text normalisation, date bounds, jailbreak-marker detection. |
 | `pipeline/classify.py` | CoA-first classifier with keyword fallback. |
-| `mappings/*.csv` | Editable rules. New countries add a map file, not application code. |
+| `mappings/*.csv` | Editable rules. Uploaded countries inherit the matched layout’s CoA map slice. |
 | `var/harmonized.db` | SQLite store: lineage, flags, current and historical classifications. |
-| `api/` | Read/review/override HTTP API. Sync handlers because SQLModel/SQLite is blocking. |
+| `api/` | Read/review/override HTTP API plus `POST /api/ingest`. Sync handlers because SQLModel/SQLite is blocking. |
 | `web/` | Analyst UI. Vite proxies `/api` in development. FastAPI `app.frontend()` serves `web/dist` in production. |
 
-Adding a country later means: a new adapter, a new `account_map.csv` slice, and a re-run of ingest. The store and UI stay the same.
+Upload a country extract in one of the three layouts. The store and UI stay the same. Re-uploading a country replaces its records.
 
 ## Harmonised grain
 

@@ -13,12 +13,13 @@ from pipeline.quality import DATE_MAX_YEAR, DATE_MIN_YEAR, is_untrusted_descript
 
 
 class CountryCAdapter(CountryAdapter):
-    country_code = "CTC"
-    source_filename = "country_c_expenditure.json"
     source_format = "json"
+    layout_id = "json_c"
+    default_currency = "RWF"
+    default_language = "en"
 
-    def load(self, data_dir: Path) -> AdapterResult:
-        path = self.source_path(data_dir)
+    def load(self, path: Path, country_code: str) -> AdapterResult:
+        filename = path.name
         payload = json.loads(path.read_text(encoding="utf-8"))
         metadata = payload.get("metadata") or {}
         transactions = payload.get("transactions") or []
@@ -88,9 +89,9 @@ class CountryCAdapter(CountryAdapter):
 
             records.append(
                 HarmonisedRecord(
-                    country_code=self.country_code,
+                    country_code=country_code,
                     source_transaction_id=str(row.get("transactionId") or ""),
-                    source_row_ref=f"{self.source_filename}:transactions[{index}]",
+                    source_row_ref=f"{filename}:transactions[{index}]",
                     transaction_date=parsed_date.date() if parsed_date else None,
                     fiscal_year=row.get("fiscalYear") or metadata.get("fiscalYear"),
                     ministry_code=row.get("ministryCode"),
@@ -111,19 +112,23 @@ class CountryCAdapter(CountryAdapter):
 
         country_accounts = [
             CountryAccount(
-                country_code=self.country_code,
+                country_code=country_code,
                 account_code=code,
                 account_label=label,
                 source="derived",
             )
             for code, label in sorted(accounts.items())
         ]
+        currency = str(metadata.get("primaryCurrency") or self.default_currency)
         return AdapterResult(
-            country_code=self.country_code,
-            source_filename=self.source_filename,
+            country_code=country_code,
+            source_filename=filename,
             source_format=self.source_format,
+            layout_id=self.layout_id,
             records=records,
             accounts=country_accounts,
             extracted_at=extracted_at,
             notes=metadata.get("notes"),
+            primary_currency=currency,
+            language=self.default_language,
         )

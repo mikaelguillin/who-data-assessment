@@ -145,3 +145,22 @@ class MappingListOut(BaseModel):
 class RefItem(BaseModel):
     code: str
     description: str
+
+
+class CountryOut(BaseModel):
+    country_code: str
+    country_name: str
+    primary_currency: str
+    language: str
+
+
+class IngestOut(BaseModel):
+    country_code: str
+    country_name: str
+    source_filename: str
+    source_format: str
+    layout_id: str
+    record_count: int
+    flag_count: int
+    classification_count: int
+    replaced: bool

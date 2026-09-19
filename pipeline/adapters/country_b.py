@@ -53,19 +53,21 @@ def parse_date_dmy(raw: object) -> datetime | None:
 
 
 class CountryBAdapter(CountryAdapter):
-    country_code = "CTB"
-    source_filename = "country_b_depenses.xlsx"
     source_format = "xlsx"
+    layout_id = "xlsx_b"
+    default_currency = "XOF"
+    default_language = "fr"
 
-    def load(self, data_dir: Path) -> AdapterResult:
-        workbook = load_workbook(self.source_path(data_dir), data_only=True, read_only=True)
+    def load(self, path: Path, country_code: str) -> AdapterResult:
+        filename = path.name
+        workbook = load_workbook(path, data_only=True, read_only=True)
         official = self._load_plan_comptable(workbook)
-        records = self._load_depenses(workbook, official)
+        records = self._load_depenses(workbook, official, country_code, filename)
         workbook.close()
 
         accounts = [
             CountryAccount(
-                country_code=self.country_code,
+                country_code=country_code,
                 account_code=code,
                 account_label=label,
                 source="official",
@@ -73,12 +75,15 @@ class CountryBAdapter(CountryAdapter):
             for code, label in official.items()
         ]
         return AdapterResult(
-            country_code=self.country_code,
-            source_filename=self.source_filename,
+            country_code=country_code,
+            source_filename=filename,
             source_format=self.source_format,
+            layout_id=self.layout_id,
             records=records,
             accounts=accounts,
             notes="Excel extract with Plan_comptable sheet; preamble and TOTAL footer skipped",
+            primary_currency=self.default_currency,
+            language=self.default_language,
         )
 
     def _load_plan_comptable(self, workbook) -> dict[str, str]:
@@ -92,7 +97,13 @@ class CountryBAdapter(CountryAdapter):
             official[str(row[0]).strip()] = str(row[1]).strip() if row[1] is not None else ""
         return official
 
-    def _load_depenses(self, workbook, official: dict[str, str]) -> list[HarmonisedRecord]:
+    def _load_depenses(
+        self,
+        workbook,
+        official: dict[str, str],
+        country_code: str,
+        filename: str,
+    ) -> list[HarmonisedRecord]:
         sheet = workbook["Depenses"]
         header_index = None
         headers: list[str] = []
@@ -165,9 +176,9 @@ class CountryBAdapter(CountryAdapter):
             payload = {key: (value.isoformat() if isinstance(value, datetime) else value) for key, value in row.items()}
             records.append(
                 HarmonisedRecord(
-                    country_code=self.country_code,
+                    country_code=country_code,
                     source_transaction_id=source_id,
-                    source_row_ref=f"{self.source_filename}:Depenses:row:{row_number}",
+                    source_row_ref=f"{filename}:Depenses:row:{row_number}",
                     transaction_date=parsed_date.date() if parsed_date else None,
                     fiscal_year=str(parsed_date.year) if parsed_date else None,
                     ministry_code=None if row.get("ministere_code") is None else str(row.get("ministere_code")),
