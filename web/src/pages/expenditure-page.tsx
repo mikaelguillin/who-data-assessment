@@ -226,7 +226,7 @@ export function ExpenditurePage() {
             </p>
           ) : null}
           <p><span className="font-medium">Description (raw):</span> {data.description_raw ?? "—"}</p>
-          <pre className="overflow-auto bg-muted p-3 text-xs">{data.raw_payload_json}</pre>
+          <pre className="overflow-auto bg-muted p-3 text-xs max-w-[500px]">{data.raw_payload_json}</pre>
         </CardContent>
       </Card>
 

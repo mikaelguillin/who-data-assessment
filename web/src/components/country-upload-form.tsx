@@ -61,7 +61,7 @@ export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form aria-label="Upload country extract" onSubmit={handleSubmit}>
-      <FieldGroup className="grid gap-3 md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
+      <FieldGroup className="grid gap-3 md:grid-cols-[1fr_1fr_auto_auto] md:items-start">
         <Field data-invalid={error ? true : undefined}>
           <FieldLabel htmlFor="country-file">Extract file</FieldLabel>
           <Input
@@ -110,7 +110,7 @@ export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
             </SelectContent>
           </Select>
         </Field>
-        <Field>
+        <Field className="mt-7">
           <Button type="submit" disabled={pending}>
             {pending ? (
               <Loader2Icon data-icon="inline-start" className="animate-spin" />
