@@ -1,0 +1,21 @@
+---
+description: Keep README.md and docs/ARCHITECTURE.md current with the app
+alwaysApply: true
+---
+
+# Product docs
+
+A feature is not done until `README.md` and `docs/ARCHITECTURE.md` match the code. Update them **in the same change**; do not leave docs for a later pass.
+
+- New or changed ingest, CLI flags, run commands, UI screens/routes, or project layout → `README.md`
+- New or changed data flow, components, data model, classification, quality flags, or scope → `docs/ARCHITECTURE.md`
+- A change that spans both (for example a new page backed by a new table) updates **both** files
+- Do not ship stale commands, missing screens, or architecture that describes a store or API that no longer exists
+
+```markdown
+# ❌ BAD — added `/transactions` and Postgres, left README saying Review queue is the only list and SQLite is the only store
+
+# ✅ GOOD — README lists Overview, Transactions, Review queue (`?review_only=1`), record detail; ARCHITECTURE notes SQLite default and `DATABASE_URL` Postgres
+```
+
+If only one file is affected, update that file and skip the other. Docs-only chores do not need new tests.

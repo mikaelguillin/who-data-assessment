@@ -16,7 +16,7 @@ flowchart LR
     Adapt[Layout parsers]
     Harm[Harmonise plus quality flags]
     Class[CoA maps plus keyword fallback]
-    DB[(SQLite)]
+    DB[(SQLite or Postgres)]
   end
   subgraph app [Analyst app]
     API[FastAPI]
@@ -31,15 +31,26 @@ flowchart LR
 
 | Piece | Role |
 | --- | --- |
-| `pipeline/adapters/` | One parser per extract layout (CSV / Excel / JSON). Each emits `HarmonisedRecord` plus quality flags. |
+| `pipeline/adapters/` | Layout detection, then one parser per extract layout (CSV / Excel / JSON). Each emits `HarmonisedRecord` plus quality flags. |
 | `pipeline/quality.py` | Text normalisation, date bounds, jailbreak-marker detection. |
 | `pipeline/classify.py` | CoA-first classifier with keyword fallback. |
 | `mappings/*.csv` | Editable rules. Uploaded countries inherit the matched layout’s CoA map slice. |
-| `var/harmonized.db` | SQLite store: lineage, flags, current and historical classifications. |
-| `api/` | Read/review/override HTTP API plus `POST /api/ingest`. Sync handlers because SQLModel/SQLite is blocking. |
+| `pipeline/db.py` | Default SQLite at `var/harmonized.db`; Postgres when `DATABASE_URL` or `POSTGRES_URL` is set. `VAR_DIR` holds uploads and the SQLite file (process temp on Vercel). |
+| `pipeline/models.py` | Lineage, flags, current and historical classifications, optional `country.flag_emoji` (display only). |
+| `api/` | Overview, expenditures (list / detail / override), mappings, countries, `POST /api/ingest`. Sync handlers because SQLModel sessions are blocking. |
 | `web/` | Analyst UI. Vite proxies `/api` in development. FastAPI `app.frontend()` serves `web/dist` in production. |
 
 Upload a country extract in one of the three layouts. The store and UI stay the same. Re-uploading a country replaces its records.
+
+### Analyst UI
+
+| Route | Role |
+| --- | --- |
+| `/` | Overview: upload (optional flag), ingest counts, review-queue share, spend by currency, SHA / SRHR / flags. |
+| `/transactions` | Filterable list (country, confidence, SRHR, quality flag, search). |
+| `/transactions?review_only=1` | Review queue: `low` / `unmapped` / `description_untrusted`. |
+| `/transactions/:id` | Record detail, lineage, flags, analyst override. |
+| `/mappings` | Per-country CoA maps and gaps. |
 
 ## Harmonised grain
 
