@@ -6,7 +6,7 @@ import useSWR, { mutate } from "swr"
 import { ConfidenceBadge } from "@/components/confidence-badge"
 import { FilterSelect } from "@/components/filter-select"
 import { fetchExpenditure, fetchShaRefs, fetchSrhrRefs, overrideClassification } from "@/lib/api"
-import { formatAmount } from "@/lib/format"
+import { formatAmount, formatDate, formatDateTime } from "@/lib/format"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -177,17 +177,17 @@ export function ExpenditurePage() {
             <CardDescription>Common structure after country adapters</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
-            <p>Country: {data.country_code}</p>
-            <p>Date: {data.transaction_date ?? "—"}</p>
-            <p>Fiscal year: {data.fiscal_year ?? "—"}</p>
+            <p><span className="font-medium">Country:</span> {data.country_code}</p>
+            <p><span className="font-medium">Date:</span> {formatDate(data.transaction_date)}</p>
+            <p><span className="font-medium">Fiscal year:</span> {data.fiscal_year ?? "—"}</p>
             <p>
-              Ministry: {data.ministry_code} — {data.ministry_name}
+              <span className="font-medium">Ministry:</span> {data.ministry_code} — {data.ministry_name}
             </p>
-            <p>Account: {data.account_code}</p>
-            <p>Supplier: {data.supplier ?? "—"}</p>
-            <p>Amount: {formatAmount(data.amount_native, data.currency_original)}</p>
-            <p>Original amount: {data.amount_original ?? "—"}</p>
-            <p>Payment method: {data.payment_method ?? "—"}</p>
+            <p><span className="font-medium">Account:</span> {data.account_code}</p>
+            <p><span className="font-medium">Supplier:</span> {data.supplier ?? "—"}</p>
+            <p><span className="font-medium">Amount:</span> {formatAmount(data.amount_native, data.currency_original)}</p>
+            <p><span className="font-medium">Original amount:</span> {data.amount_original ?? "—"}</p>
+            <p><span className="font-medium">Payment method:</span> {data.payment_method ?? "—"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -203,7 +203,7 @@ export function ExpenditurePage() {
             <p className="text-muted-foreground">{data.classification?.srhr_description}</p>
             <p>{data.classification?.rationale}</p>
             <p className="text-muted-foreground">
-              {data.classification?.classified_by} · {data.classification?.classified_at}
+              {data.classification?.classified_by} · {formatDateTime(data.classification?.classified_at)}
             </p>
           </CardContent>
         </Card>
@@ -219,7 +219,7 @@ export function ExpenditurePage() {
           {data.ingestion_run ? (
             <p>
               Ingested from {data.ingestion_run.source_filename} ({data.ingestion_run.source_format}) on{" "}
-              {data.ingestion_run.ingested_at}
+              {formatDateTime(data.ingestion_run.ingested_at)}
             </p>
           ) : null}
           <p>Description (raw): {data.description_raw ?? "—"}</p>
