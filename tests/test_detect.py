@@ -41,3 +41,29 @@ def test_rejects_json_without_transactions(tmp_path: Path) -> None:
     path.write_text('{"hello": []}', encoding="utf-8")
     with pytest.raises(UnsupportedLayoutError, match="metadata"):
         detect_layout(path)
+
+
+def test_rejects_malformed_json(tmp_path: Path) -> None:
+    path = tmp_path / "broken.json"
+    path.write_text("{not json", encoding="utf-8")
+    with pytest.raises(UnsupportedLayoutError, match="could not be parsed"):
+        detect_layout(path)
+
+
+def test_rejects_empty_csv(tmp_path: Path) -> None:
+    path = tmp_path / "empty.csv"
+    path.write_text("", encoding="utf-8")
+    with pytest.raises(UnsupportedLayoutError, match="empty"):
+        detect_layout(path)
+
+
+def test_rejects_xlsx_with_wrong_sheets(tmp_path: Path) -> None:
+    from openpyxl import Workbook
+
+    path = tmp_path / "other.xlsx"
+    workbook = Workbook()
+    assert workbook.active is not None
+    workbook.active.title = "Sheet1"
+    workbook.save(path)
+    with pytest.raises(UnsupportedLayoutError, match="Depenses"):
+        detect_layout(path)

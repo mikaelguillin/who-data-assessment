@@ -2,7 +2,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from tests.helpers import write_csv_a, write_json_c
+from tests.helpers import write_csv_a, write_json_c, write_xlsx_b
 
 
 def test_empty_overview_and_countries(client: TestClient) -> None:
@@ -102,3 +102,63 @@ def test_ingest_second_country_and_replace(client: TestClient, tmp_path: Path) -
     assert overview["expenditure_count"] == 2
     kenya_summary = next(item for item in overview["countries"] if item["country_code"] == "KENYA")
     assert kenya_summary["record_count"] == 1
+
+
+def test_ingest_xlsx_upload(client: TestClient, tmp_path: Path) -> None:
+    path = write_xlsx_b(tmp_path / "senegal.xlsx")
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "Senegal"},
+        files={
+            "file": (
+                "senegal.xlsx",
+                path.read_bytes(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["country_code"] == "SENEGAL"
+    assert body["source_format"] == "xlsx"
+    assert body["layout_id"] == "xlsx_b"
+    countries = client.get("/api/countries").json()
+    assert countries == [
+        {
+            "country_code": "SENEGAL",
+            "country_name": "Senegal",
+            "primary_currency": "XOF",
+            "language": "fr",
+        }
+    ]
+
+
+def test_ingest_rejects_empty_file(client: TestClient) -> None:
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "Kenya"},
+        files={"file": ("empty.csv", b"", "text/csv")},
+    )
+    assert response.status_code == 400
+    assert "empty" in response.json()["detail"].lower()
+
+
+def test_ingest_rejects_blank_country_name(client: TestClient, tmp_path: Path) -> None:
+    path = write_csv_a(tmp_path / "kenya.csv")
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "   "},
+        files={"file": ("kenya.csv", path.read_bytes(), "text/csv")},
+    )
+    assert response.status_code == 400
+    assert "country_name is required" in response.json()["detail"]
+
+
+def test_ingest_rejects_csv_wrong_layout(client: TestClient) -> None:
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "Mystery"},
+        files={"file": ("other.csv", b"id,amount\n1,2\n", "text/csv")},
+    )
+    assert response.status_code == 400
+    assert "TXN_ID" in response.json()["detail"]
