@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pipeline.db import normalize_database_url, resolve_database_url, resolve_var_dir
+from pipeline.db import ensure_schema, normalize_database_url, resolve_database_url, resolve_var_dir
 
 
 def test_normalize_postgres_urls() -> None:
@@ -36,3 +36,22 @@ def test_resolve_var_dir_honors_override(monkeypatch, tmp_path: Path) -> None:
     resolved = resolve_var_dir()
     assert resolved == override
     assert resolved.is_dir()
+
+
+def test_ensure_schema_adds_missing_flag_emoji(tmp_path: Path) -> None:
+    from sqlalchemy import create_engine, inspect, text
+
+    engine = create_engine(f"sqlite:///{tmp_path / 'legacy.db'}")
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "CREATE TABLE country ("
+                "country_code VARCHAR PRIMARY KEY, "
+                "country_name VARCHAR NOT NULL, "
+                "primary_currency VARCHAR NOT NULL, "
+                "language VARCHAR NOT NULL)"
+            )
+        )
+    ensure_schema(engine)
+    columns = {column["name"] for column in inspect(engine).get_columns("country")}
+    assert "flag_emoji" in columns

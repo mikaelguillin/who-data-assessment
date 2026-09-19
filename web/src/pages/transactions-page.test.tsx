@@ -26,6 +26,7 @@ beforeEach(() => {
             country_name: "Kenya",
             primary_currency: "KES",
             language: "en",
+            flag_emoji: "🇰🇪",
           },
         ])
       }
@@ -54,7 +55,7 @@ test("country filter uses API country names instead of hardcoded A/B/C", async (
   await screen.findByRole("heading", { name: /transactions/i })
   const countryTrigger = screen.getAllByRole("combobox")[0]
   await user.click(countryTrigger)
-  expect(await screen.findByText("Kenya")).toBeInTheDocument()
+  expect(await screen.findByText("🇰🇪 Kenya")).toBeInTheDocument()
   expect(screen.queryByText("Country A")).not.toBeInTheDocument()
   expect(screen.queryByText("Country B")).not.toBeInTheDocument()
   expect(screen.queryByText("Country C")).not.toBeInTheDocument()

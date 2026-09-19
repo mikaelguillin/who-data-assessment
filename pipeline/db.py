@@ -4,6 +4,7 @@ import os
 import tempfile
 from pathlib import Path
 
+from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import NullPool
 from sqlmodel import Session, SQLModel, create_engine
@@ -79,9 +80,21 @@ def ensure_var_dir() -> None:
     UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def ensure_schema(db_engine: Engine | None = None) -> None:
+    target = db_engine if db_engine is not None else engine
+    inspector = inspect(target)
+    if "country" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("country")}
+    if "flag_emoji" not in columns:
+        with target.begin() as connection:
+            connection.execute(text("ALTER TABLE country ADD COLUMN flag_emoji VARCHAR"))
+
+
 def init_database() -> None:
     ensure_var_dir()
     SQLModel.metadata.create_all(engine)
+    ensure_schema()
 
 
 def reset_database() -> None:

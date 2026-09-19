@@ -60,6 +60,7 @@ def get_overview(session: SessionDep) -> OverviewOut:
             CountrySummary(
                 country_code=country.country_code,
                 country_name=country.country_name,
+                flag_emoji=country.flag_emoji,
                 record_count=len(rows),
                 review_count=review_for_country,
                 currencies=sorted(currencies.values(), key=lambda item: item.currency),

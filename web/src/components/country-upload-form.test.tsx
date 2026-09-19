@@ -5,10 +5,12 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
 import { CountryUploadForm } from "@/components/country-upload-form"
 import { chooseFile } from "@/test/choose-file"
+import { chooseFlag } from "@/test/choose-flag"
 
 const ingestOut = {
   country_code: "KENYA",
   country_name: "Kenya",
+  flag_emoji: "🇫🇷",
   source_filename: "kenya.csv",
   source_format: "csv",
   layout_id: "csv_a",
@@ -55,7 +57,38 @@ function renderForm() {
   )
 }
 
-test("uploads an extract and calls ingest", async () => {
+test("flag select lists emoji flags with accessible country names", async () => {
+  const user = userEvent.setup()
+  renderForm()
+  await user.click(screen.getByRole("combobox", { name: /^flag$/i }))
+  const kenya = await screen.findByRole("option", { name: /^kenya$/i })
+  expect(kenya).toHaveTextContent("🇰🇪")
+  expect(kenya).not.toHaveTextContent(/kenya/i)
+  expect(screen.getByRole("option", { name: /^france$/i })).toHaveTextContent("🇫🇷")
+})
+
+test("uploads an extract with a free-text name and an independent flag", async () => {
+  const user = userEvent.setup()
+  renderForm()
+  const file = new File(["TXN_ID,ACCOUNT_CODE,AMOUNT_KES,DATE\n"], "kenya.csv", { type: "text/csv" })
+  chooseFile(screen.getByLabelText(/extract file/i), file)
+  await user.type(screen.getByLabelText(/country name/i), "Kenya")
+  await chooseFlag(user, "France")
+  await user.click(screen.getByRole("button", { name: /upload extract/i }))
+  await waitFor(() => {
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/ingest",
+      expect.objectContaining({ method: "POST" })
+    )
+  })
+  const ingestCall = vi.mocked(fetch).mock.calls.find(([url]) => String(url) === "/api/ingest")
+  expect(ingestCall).toBeDefined()
+  const body = ingestCall?.[1]?.body as FormData
+  expect(body.get("country_name")).toBe("Kenya")
+  expect(body.get("flag_emoji")).toBe("🇫🇷")
+})
+
+test("uploads without a flag when none is selected", async () => {
   const user = userEvent.setup()
   renderForm()
   const file = new File(["TXN_ID,ACCOUNT_CODE,AMOUNT_KES,DATE\n"], "kenya.csv", { type: "text/csv" })
@@ -68,6 +101,10 @@ test("uploads an extract and calls ingest", async () => {
       expect.objectContaining({ method: "POST" })
     )
   })
+  const ingestCall = vi.mocked(fetch).mock.calls.find(([url]) => String(url) === "/api/ingest")
+  const body = ingestCall?.[1]?.body as FormData
+  expect(body.get("country_name")).toBe("Kenya")
+  expect(body.get("flag_emoji")).toBeNull()
 })
 
 test("shows a client error when file or name is missing", async () => {

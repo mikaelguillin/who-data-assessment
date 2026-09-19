@@ -30,11 +30,14 @@ from pipeline.quality import labels_consistent
 DATA_DIR = ROOT / "data"
 MAPPINGS_DIR = ROOT / "mappings"
 
+MAX_FLAG_EMOJI_LENGTH = 16
+
 
 @dataclass
 class IngestOutcome:
     country_code: str
     country_name: str
+    flag_emoji: str | None
     source_filename: str
     source_format: str
     layout_id: str
@@ -74,6 +77,17 @@ def seed_reference_data(session: Session) -> None:
 def normalize_country_code(raw: str) -> str:
     cleaned = re.sub(r"[^A-Za-z0-9]", "", raw).upper()
     return cleaned[:12]
+
+
+def normalize_flag_emoji(raw: str | None) -> str | None:
+    if raw is None:
+        return None
+    cleaned = raw.strip()
+    if not cleaned:
+        return None
+    if len(cleaned) > MAX_FLAG_EMOJI_LENGTH:
+        raise ValueError("flag_emoji must be a short emoji (at most 16 characters)")
+    return cleaned
 
 
 def slug_country_code(name: str) -> str:
@@ -266,6 +280,7 @@ def ingest_file(
     country_code: str | None = None,
     *,
     session: Session,
+    flag_emoji: str | None = None,
 ) -> IngestOutcome:
     name = country_name.strip()
     if not name:
@@ -273,6 +288,7 @@ def ingest_file(
     if not path.is_file() or path.stat().st_size == 0:
         raise ValueError("The uploaded file is empty")
 
+    emoji = normalize_flag_emoji(flag_emoji)
     seed_reference_data(session)
     code, replaced = allocate_country_code(session, name, country_code)
     result = load_extract(path, code)
@@ -285,12 +301,15 @@ def ingest_file(
                 country_name=name,
                 primary_currency=result.primary_currency or "XXX",
                 language=result.language,
+                flag_emoji=emoji,
             )
         )
     else:
         existing.country_name = name
         existing.primary_currency = result.primary_currency or existing.primary_currency
         existing.language = result.language
+        if emoji is not None:
+            existing.flag_emoji = emoji
         session.add(existing)
         replaced = True
     session.flush()
@@ -306,11 +325,13 @@ def ingest_file(
     maps_by_key = {(item.country_code, item.account_code): item for item in template_maps}
     keyword_rules = load_keyword_rules(MAPPINGS_DIR / "keyword_rules.csv")
     expenditures, flags, classifications = _persist_result(session, result, maps_by_key, keyword_rules)
+    country = session.get(Country, code)
     session.commit()
 
     return IngestOutcome(
         country_code=code,
         country_name=name,
+        flag_emoji=country.flag_emoji if country is not None else emoji,
         source_filename=result.source_filename,
         source_format=result.source_format,
         layout_id=result.layout_id,
@@ -321,7 +342,12 @@ def ingest_file(
     )
 
 
-def run_ingest(path: Path, country_name: str, country_code: str | None = None) -> IngestOutcome:
+def run_ingest(
+    path: Path,
+    country_name: str,
+    country_code: str | None = None,
+    flag_emoji: str | None = None,
+) -> IngestOutcome:
     init_database()
     with get_session() as session:
-        return ingest_file(path, country_name, country_code, session=session)
+        return ingest_file(path, country_name, country_code, session=session, flag_emoji=flag_emoji)

@@ -5,7 +5,7 @@ import useSWR from "swr"
 import { ConfidenceBadge } from "@/components/confidence-badge"
 import { FilterSelect } from "@/components/filter-select"
 import { expenditureListKey, fetchCountries, fetchExpenditureList } from "@/lib/api"
-import { formatAmount } from "@/lib/format"
+import { formatAmount, formatCountryLabel } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
@@ -82,7 +82,7 @@ export function TransactionsPage() {
               { value: "all", label: "All" },
               ...(countries ?? []).map((country) => ({
                 value: country.country_code,
-                label: country.country_name,
+                label: formatCountryLabel(country),
               })),
             ]}
           />

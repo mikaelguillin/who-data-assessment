@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest"
 
 import { OverviewPage } from "@/pages/overview-page"
 import { chooseFile } from "@/test/choose-file"
+import { chooseFlag } from "@/test/choose-flag"
 import type { OverviewOut } from "@/types"
 
 const emptyOverview: OverviewOut = {
@@ -27,6 +28,7 @@ const populatedOverview: OverviewOut = {
     {
       country_code: "KENYA",
       country_name: "Kenya",
+      flag_emoji: "🇫🇷",
       record_count: 1,
       review_count: 0,
       currencies: [{ currency: "KES", amount: 100, count: 1 }],
@@ -58,6 +60,7 @@ beforeEach(() => {
         return jsonResponse({
           country_code: "KENYA",
           country_name: "Kenya",
+          flag_emoji: "🇫🇷",
           source_filename: "kenya.csv",
           source_format: "csv",
           layout_id: "csv_a",
@@ -70,7 +73,7 @@ beforeEach(() => {
       if (url === "/api/countries") {
         return jsonResponse(
           ingested
-            ? [{ country_code: "KENYA", country_name: "Kenya", primary_currency: "KES", language: "en" }]
+            ? [{ country_code: "KENYA", country_name: "Kenya", primary_currency: "KES", language: "en", flag_emoji: "🇫🇷" }]
             : []
         )
       }
@@ -117,10 +120,12 @@ test("shows the ingested country after a successful upload", async () => {
   const file = new File(["TXN_ID,ACCOUNT_CODE,AMOUNT_KES,DATE\n"], "kenya.csv", { type: "text/csv" })
   chooseFile(screen.getByLabelText(/extract file/i), file)
   await user.type(screen.getByLabelText(/country name/i), "Kenya")
+  await chooseFlag(user, "France")
   await user.click(screen.getByRole("button", { name: /upload extract/i }))
   await waitFor(() => {
     expect(screen.getByText("Kenya")).toBeInTheDocument()
   })
+  expect(screen.getByText("Kenya").parentElement).toHaveTextContent("🇫🇷")
   expect(screen.queryByText(/no countries ingested yet/i)).not.toBeInTheDocument()
   expect(screen.getByText(/records ingested/i)).toBeInTheDocument()
 })

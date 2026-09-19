@@ -14,3 +14,10 @@ export function formatAmount(amount: number | null | undefined, currency: string
 export function formatShare(value: number): string {
   return `${Math.round(value * 100)}%`
 }
+
+export function formatCountryLabel(country: {
+  country_name: string
+  flag_emoji?: string | null
+}): string {
+  return country.flag_emoji ? `${country.flag_emoji} ${country.country_name}` : country.country_name
+}

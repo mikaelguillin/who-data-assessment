@@ -97,6 +97,7 @@ export type CurrencySpend = {
 export type CountrySummary = {
   country_code: string
   country_name: string
+  flag_emoji: string | null
   record_count: number
   review_count: number
   currencies: CurrencySpend[]
@@ -152,11 +153,13 @@ export type CountryOut = {
   country_name: string
   primary_currency: string
   language: string
+  flag_emoji: string | null
 }
 
 export type IngestOut = {
   country_code: string
   country_name: string
+  flag_emoji: string | null
   source_filename: string
   source_format: string
   layout_id: string

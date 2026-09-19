@@ -3,6 +3,7 @@ import useSWR from "swr"
 
 import { FilterSelect } from "@/components/filter-select"
 import { fetchCountries, fetchMappings } from "@/lib/api"
+import { formatCountryLabel } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import { Field, FieldLabel } from "@/components/ui/field"
@@ -49,7 +50,7 @@ export function MappingsPage() {
             { value: "all", label: "All" },
             ...(countries ?? []).map((item) => ({
               value: item.country_code,
-              label: item.country_name,
+              label: formatCountryLabel(item),
             })),
           ]}
         />

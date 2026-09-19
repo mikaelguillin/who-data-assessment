@@ -109,6 +109,7 @@ class CurrencySpend(BaseModel):
 class CountrySummary(BaseModel):
     country_code: str
     country_name: str
+    flag_emoji: str | None = None
     record_count: int
     review_count: int
     currencies: list[CurrencySpend] = Field(default_factory=list)
@@ -152,11 +153,13 @@ class CountryOut(BaseModel):
     country_name: str
     primary_currency: str
     language: str
+    flag_emoji: str | None = None
 
 
 class IngestOut(BaseModel):
     country_code: str
     country_name: str
+    flag_emoji: str | None = None
     source_filename: str
     source_format: str
     layout_id: str

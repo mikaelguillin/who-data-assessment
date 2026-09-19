@@ -49,6 +49,7 @@ class Country(SQLModel, table=True):
     country_name: str
     primary_currency: str
     language: str
+    flag_emoji: str | None = SQLField(default=None)
 
 
 class ShaRef(SQLModel, table=True):

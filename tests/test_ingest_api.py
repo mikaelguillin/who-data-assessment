@@ -44,6 +44,7 @@ def test_ingest_upload_creates_country(client: TestClient, tmp_path: Path) -> No
             "country_name": "Kenya",
             "primary_currency": "KES",
             "language": "en",
+            "flag_emoji": None,
         }
     ]
     overview = client.get("/api/overview").json()
@@ -135,6 +136,7 @@ def test_ingest_xlsx_upload(client: TestClient, tmp_path: Path) -> None:
             "country_name": "Senegal",
             "primary_currency": "XOF",
             "language": "fr",
+            "flag_emoji": None,
         }
     ]
 
@@ -168,3 +170,39 @@ def test_ingest_rejects_csv_wrong_layout(client: TestClient) -> None:
     )
     assert response.status_code == 400
     assert "TXN_ID" in response.json()["detail"]
+
+
+def test_ingest_upload_associates_flag_emoji(client: TestClient, tmp_path: Path) -> None:
+    path = write_csv_a(tmp_path / "kenya.csv")
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "Kenya", "flag_emoji": "🇰🇪"},
+        files={"file": ("kenya.csv", path.read_bytes(), "text/csv")},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["flag_emoji"] == "🇰🇪"
+
+    countries = client.get("/api/countries").json()
+    assert countries[0]["flag_emoji"] == "🇰🇪"
+    overview = client.get("/api/overview").json()
+    assert overview["countries"][0]["flag_emoji"] == "🇰🇪"
+
+    again = client.post(
+        "/api/ingest",
+        data={"country_name": "Kenya", "country_code": "KENYA"},
+        files={"file": ("kenya.csv", path.read_bytes(), "text/csv")},
+    )
+    assert again.status_code == 200
+    assert again.json()["flag_emoji"] == "🇰🇪"
+    assert client.get("/api/countries").json()[0]["flag_emoji"] == "🇰🇪"
+
+
+def test_ingest_rejects_oversized_flag_emoji(client: TestClient, tmp_path: Path) -> None:
+    path = write_csv_a(tmp_path / "kenya.csv")
+    response = client.post(
+        "/api/ingest",
+        data={"country_name": "Kenya", "flag_emoji": "x" * 17},
+        files={"file": ("kenya.csv", path.read_bytes(), "text/csv")},
+    )
+    assert response.status_code == 400
+    assert "flag_emoji" in response.json()["detail"]

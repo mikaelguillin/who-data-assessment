@@ -4,14 +4,25 @@ import { toast } from "sonner"
 import { mutate } from "swr"
 
 import { uploadCountryExtract } from "@/lib/api"
+import { COUNTRIES } from "@/lib/countries"
+import { formatCountryLabel } from "@/lib/format"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [flagEmoji, setFlagEmoji] = useState<string | null>(null)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -24,16 +35,18 @@ export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
     const data = new FormData()
     data.set("country_name", name)
     data.set("file", file)
+    if (flagEmoji) data.set("flag_emoji", flagEmoji)
     setPending(true)
     setError(null)
     try {
       const result = await uploadCountryExtract(data)
       const verb = result.replaced ? "Replaced" : "Ingested"
       toast.success(
-        `${verb} ${result.record_count.toLocaleString()} records for ${result.country_name}`
+        `${verb} ${result.record_count.toLocaleString()} records for ${formatCountryLabel(result)}`
       )
       form.reset()
       setFile(null)
+      setFlagEmoji(null)
       await mutate("/api/overview")
       await mutate("/api/countries")
       onSuccess?.()
@@ -48,7 +61,7 @@ export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <form aria-label="Upload country extract" onSubmit={handleSubmit}>
-      <FieldGroup className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+      <FieldGroup className="grid gap-3 md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
         <Field data-invalid={error ? true : undefined}>
           <FieldLabel htmlFor="country-file">Extract file</FieldLabel>
           <Input
@@ -71,6 +84,31 @@ export function CountryUploadForm({ onSuccess }: { onSuccess?: () => void }) {
             disabled={pending}
             aria-invalid={error ? true : undefined}
           />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="country-flag">Flag</FieldLabel>
+          <Select
+            value={flagEmoji}
+            onValueChange={(next) => setFlagEmoji(next ?? null)}
+            disabled={pending}
+            items={COUNTRIES.map((country) => ({
+              value: country.flag,
+              label: country.flag,
+            }))}
+          >
+            <SelectTrigger id="country-flag">
+              <SelectValue placeholder="Flag" />
+            </SelectTrigger>
+            <SelectContent align="start" alignItemWithTrigger={false}>
+              <SelectGroup>
+                {COUNTRIES.map((country) => (
+                  <SelectItem key={country.iso2} value={country.flag} aria-label={country.name}>
+                    {country.flag}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </Field>
         <Field>
           <Button type="submit" disabled={pending}>

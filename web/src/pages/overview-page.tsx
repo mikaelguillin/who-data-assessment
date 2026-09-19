@@ -118,7 +118,10 @@ export function OverviewPage() {
             {data.countries.map((country) => (
               <Card key={country.country_code}>
                 <CardHeader>
-                  <CardTitle>{country.country_name}</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    {country.flag_emoji ? <span aria-hidden="true">{country.flag_emoji}</span> : null}
+                    {country.country_name}
+                  </CardTitle>
                   <CardDescription>{country.country_code}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-2 text-sm">

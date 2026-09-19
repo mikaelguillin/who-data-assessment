@@ -19,6 +19,7 @@ def test_ingest_creates_country_and_classifies_from_layout_maps(session: Session
     assert country is not None
     assert country.country_name == "Kenya"
     assert country.primary_currency == "KES"
+    assert country.flag_emoji is None
 
     expenditure = session.exec(select(Expenditure)).one()
     assert expenditure.account_code == "2211102"
@@ -119,3 +120,31 @@ def test_ingest_suffixes_code_when_slug_is_taken(session: Session, tmp_path: Pat
     assert outcome.replaced is False
     codes = {item.country_code for item in session.exec(select(Country)).all()}
     assert codes == {"GHANA", "GHANA2"}
+
+
+def test_ingest_stores_flag_emoji_and_keeps_it_on_reupload(session: Session, tmp_path: Path) -> None:
+    path = write_csv_a(tmp_path / "kenya.csv")
+    outcome = ingest_file(path, "Kenya", session=session, flag_emoji=" 🇰🇪 ")
+    assert outcome.flag_emoji == "🇰🇪"
+    country = session.get(Country, "KENYA")
+    assert country is not None
+    assert country.flag_emoji == "🇰🇪"
+
+    again = ingest_file(path, "Kenya", session=session)
+    assert again.replaced is True
+    assert again.flag_emoji == "🇰🇪"
+    country = session.get(Country, "KENYA")
+    assert country is not None
+    assert country.flag_emoji == "🇰🇪"
+
+    updated = ingest_file(path, "Kenya", session=session, flag_emoji="🇫🇷")
+    assert updated.flag_emoji == "🇫🇷"
+    country = session.get(Country, "KENYA")
+    assert country is not None
+    assert country.flag_emoji == "🇫🇷"
+
+
+def test_ingest_rejects_oversized_flag_emoji(session: Session, tmp_path: Path) -> None:
+    path = write_csv_a(tmp_path / "kenya.csv")
+    with pytest.raises(ValueError, match="flag_emoji"):
+        ingest_file(path, "Kenya", session=session, flag_emoji="x" * 17)

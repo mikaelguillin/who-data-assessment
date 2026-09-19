@@ -67,6 +67,7 @@ def list_countries(session: SessionDep) -> list[CountryOut]:
             country_name=item.country_name,
             primary_currency=item.primary_currency,
             language=item.language,
+            flag_emoji=item.flag_emoji,
         )
         for item in countries
     ]
@@ -78,6 +79,7 @@ def ingest_country(
     file: Annotated[UploadFile, File()],
     country_name: Annotated[str, Form()],
     country_code: Annotated[str | None, Form()] = None,
+    flag_emoji: Annotated[str | None, Form()] = None,
 ) -> IngestOut:
     name = country_name.strip()
     if not name:
@@ -85,7 +87,7 @@ def ingest_country(
     code = country_code.strip() if country_code and country_code.strip() else None
     saved = _save_upload(file)
     try:
-        outcome = ingest_file(saved, name, code, session=session)
+        outcome = ingest_file(saved, name, code, session=session, flag_emoji=flag_emoji)
     except UnsupportedLayoutError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except ValueError as exc:
@@ -93,6 +95,7 @@ def ingest_country(
     return IngestOut(
         country_code=outcome.country_code,
         country_name=outcome.country_name,
+        flag_emoji=outcome.flag_emoji,
         source_filename=outcome.source_filename,
         source_format=outcome.source_format,
         layout_id=outcome.layout_id,

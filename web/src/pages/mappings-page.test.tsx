@@ -38,6 +38,7 @@ beforeEach(() => {
             country_name: "Kenya",
             primary_currency: "KES",
             language: "en",
+            flag_emoji: "🇰🇪",
           },
         ])
       }
@@ -73,11 +74,11 @@ test("country filter uses API country names instead of hardcoded A/B/C", async (
   await screen.findByRole("heading", { name: /chart-of-account maps/i })
   expect(await screen.findByText("2211102")).toBeInTheDocument()
   await user.click(screen.getByRole("combobox"))
-  expect(await screen.findByText("Kenya")).toBeInTheDocument()
+  expect(await screen.findByText("🇰🇪 Kenya")).toBeInTheDocument()
   expect(screen.queryByText("Country A")).not.toBeInTheDocument()
   expect(screen.queryByText("Country B")).not.toBeInTheDocument()
   expect(screen.queryByText("Country C")).not.toBeInTheDocument()
-  await user.click(screen.getByText("Kenya"))
+  await user.click(screen.getByText("🇰🇪 Kenya"))
   await waitFor(() => {
     expect(fetch).toHaveBeenCalledWith("/api/mappings?country=KENYA")
   })
