@@ -5,6 +5,12 @@ from fastapi.testclient import TestClient
 from tests.helpers import write_csv_a, write_json_c, write_xlsx_b
 
 
+def test_health(client: TestClient) -> None:
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 def test_empty_overview_and_countries(client: TestClient) -> None:
     overview = client.get("/api/overview")
     assert overview.status_code == 200

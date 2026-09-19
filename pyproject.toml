@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.128.0",
     "openpyxl>=3.1.5",
     "pandas>=2.2.3",
+    "psycopg[binary]>=3.2",
     "pydantic>=2.11.0",
     "sqlmodel>=0.0.24",
 ]
@@ -31,6 +32,12 @@ packages = ["pipeline", "api"]
 
 [tool.fastapi]
 entrypoint = "api.main:app"
+
+[tool.vercel]
+entrypoint = "api.main:app"
+
+[tool.vercel.scripts]
+build = "npm --prefix web ci && npm --prefix web run build"
 
 [tool.ruff]
 line-length = 120
