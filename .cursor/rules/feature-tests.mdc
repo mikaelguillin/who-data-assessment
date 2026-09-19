@@ -1,0 +1,21 @@
+---
+description: Require backend and frontend tests for every new feature
+alwaysApply: true
+---
+
+# Feature tests
+
+A feature is not done until tests exist **and pass** on every layer it touches.
+
+- New or changed API/pipeline behavior → pytest coverage in `tests/`
+- New or changed analyst UI → Vitest/Testing Library coverage under `web/`
+- A feature that spans ingest → API → UI needs tests on **both** sides, not one
+- Bug fixes add a regression test that fails before the fix and passes after
+- Do not ship a feature with only manual verification, skipped tests, or TODOs
+
+If the harness is missing, add it as part of the work:
+
+- Backend: `pytest` (and `httpx` if needed) in `[project.optional-dependencies] dev`; run `uv run pytest`
+- Frontend: Vitest + Testing Library in `web/`; run `npm test` from `web/`
+
+Do not mark the task complete until both relevant suites pass. If a change is backend-only (no UI surface), say so and skip frontend tests; if UI-only (no API/pipeline change), skip backend tests. Default is **both**.

@@ -1,0 +1,48 @@
+---
+description: Pytest conventions for FastAPI and pipeline changes
+globs: "{api,pipeline,tests}/**/*.py"
+alwaysApply: false
+---
+
+# Backend tests
+
+Put tests in `tests/`. Name files `test_<area>.py` (`test_classify.py`, `test_expenditures.py`). Prefer focused unit tests for `pipeline/`; use `TestClient` for `api/` routers.
+
+Never hit `var/harmonized.db`. Use an in-memory SQLite engine and override `get_db`:
+
+```python
+from fastapi.testclient import TestClient
+from sqlalchemy.pool import StaticPool
+from sqlmodel import Session, SQLModel, create_engine
+
+from api.deps import get_db
+from api.main import app
+
+engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+SQLModel.metadata.create_all(engine)
+
+def override_get_db():
+    with Session(engine) as session:
+        yield session
+
+app.dependency_overrides[get_db] = override_get_db
+client = TestClient(app)
+```
+
+- Assert status, JSON shape, and the behaviour under test (filters, overrides, flags)
+- Cover edge cases already in the prototype: untrusted Country B text, duplicate source IDs, unmapped SHA, `review_only`
+- Keep fixtures small; do not ingest the full 7,000-row extracts in unit tests
+- `def` path operations stay sync in tests; do not switch handlers to `async` just for the client
+
+```python
+# ❌ BAD — no API test for a new filter
+def list_expenditures(..., mine: bool = False): ...
+
+# ✅ GOOD
+def test_review_only_returns_untrusted_rows(client):
+    res = client.get("/api/expenditures", params={"review_only": True})
+    assert res.status_code == 200
+    assert all(item["needs_review"] for item in res.json()["items"])
+```
+
+Run `uv run pytest` before finishing.

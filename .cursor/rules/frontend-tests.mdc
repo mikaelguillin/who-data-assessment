@@ -1,0 +1,36 @@
+---
+description: Vitest and Testing Library conventions for the analyst UI
+globs: "web/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Frontend tests
+
+Colocate tests as `ComponentName.test.tsx` next to the file under test. Use Vitest, Testing Library, and `userEvent`. Test what the analyst sees and does, not implementation details.
+
+- Query by role, label, or text (`getByRole`, `getByLabelText`) — not `container.querySelector`
+- Mock `/api` fetches (SWR / `fetch`); do not call the live FastAPI server
+- Cover loading, empty, error, and the happy path for each new view or control
+- For filters, overrides, and review-queue flags, assert the UI updates after the user action
+
+```tsx
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+test("filters the queue by untrusted description", async () => {
+  const user = userEvent.setup();
+  render(<ReviewQueue />);
+  await user.click(screen.getByRole("button", { name: /description_untrusted/i }));
+  expect(screen.getByText(/611040/)).toBeInTheDocument();
+});
+```
+
+```tsx
+// ❌ BAD
+expect(wrapper.state.flag).toBe("description_untrusted");
+
+// ✅ GOOD
+expect(screen.getByRole("status")).toHaveTextContent(/untrusted/i);
+```
+
+If Vitest is not configured, add it to `web/` (`vitest`, `jsdom`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`) and a `test` script. Run `npm test` from `web/` before finishing.
