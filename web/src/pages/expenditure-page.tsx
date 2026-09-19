@@ -193,18 +193,21 @@ export function ExpenditurePage() {
         <Card>
           <CardHeader>
             <CardTitle>Classification</CardTitle>
-            <CardDescription>{data.classification?.method ?? "none"}</CardDescription>
+            <CardDescription><span className="font-medium">Type of Classification:</span> {data.classification?.method ?? "none"}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
-            <ConfidenceBadge value={data.classification?.confidence ?? null} />
-            <p>SHA: {data.classification?.sha_code ?? "unmapped"}</p>
-            <p className="text-muted-foreground">{data.classification?.sha_description}</p>
-            <p>SRHR: {data.classification?.srhr_code ?? "—"}</p>
-            <p className="text-muted-foreground">{data.classification?.srhr_description}</p>
-            <p>{data.classification?.rationale}</p>
-            <p className="text-muted-foreground">
-              {data.classification?.classified_by} · {formatDateTime(data.classification?.classified_at)}
-            </p>
+            <p><span className="font-medium">Confidence:</span> <ConfidenceBadge value={data.classification?.confidence ?? null} /></p>
+            <div>
+              <span className="font-medium">SHA:</span> {data.classification?.sha_code ?? "unmapped"}
+              <p className="text-muted-foreground">{data.classification?.sha_description}</p>
+            </div>
+            <div>
+              <span className="font-medium">SRHR:</span> {data.classification?.srhr_code ?? "—"}
+              <p className="text-muted-foreground">{data.classification?.srhr_description}</p>
+            </div>
+            <p><span className="font-medium">Rationale:</span> {data.classification?.rationale}</p>
+            <p><span className="font-medium">Classified By:</span> {data.classification?.classified_by ?? "unknown"}</p>
+            <p><span className="font-medium">Classified On:</span> {formatDateTime(data.classification?.classified_at)}</p>
           </CardContent>
         </Card>
       </div>
@@ -215,14 +218,14 @@ export function ExpenditurePage() {
           <CardDescription>Trace back to the original extract</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 text-sm">
-          <p>Source ref: {data.source_row_ref}</p>
+          <p><span className="font-medium">Source ref:</span> {data.source_row_ref}</p>
           {data.ingestion_run ? (
             <p>
-              Ingested from {data.ingestion_run.source_filename} ({data.ingestion_run.source_format}) on{" "}
+              <span className="font-medium">Ingested from:</span> {data.ingestion_run.source_filename} ({data.ingestion_run.source_format}) on{" "}
               {formatDateTime(data.ingestion_run.ingested_at)}
             </p>
           ) : null}
-          <p>Description (raw): {data.description_raw ?? "—"}</p>
+          <p><span className="font-medium">Description (raw):</span> {data.description_raw ?? "—"}</p>
           <pre className="overflow-auto bg-muted p-3 text-xs">{data.raw_payload_json}</pre>
         </CardContent>
       </Card>
