@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge"
 
 const VARIANTS = {
-  high: "secondary",
-  medium: "outline",
-  low: "outline",
+  high: "success",
+  medium: "warning",
+  low: "error",
   unmapped: "destructive",
 } as const
 

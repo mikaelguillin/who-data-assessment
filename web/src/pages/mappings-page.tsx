@@ -1,6 +1,7 @@
 import { useState } from "react"
 import useSWR from "swr"
 
+import { ConfidenceBadge } from "@/components/confidence-badge"
 import { FilterSelect } from "@/components/filter-select"
 import { fetchCountries, fetchMappings } from "@/lib/api"
 import { formatCountryLabel } from "@/lib/format"
@@ -86,9 +87,11 @@ export function MappingsPage() {
                 <TableCell>{item.srhr_code ?? "—"}</TableCell>
                 <TableCell>
                   {item.mapped ? (
-                    <Badge variant={item.generic ? "outline" : "secondary"}>
-                      {item.generic ? "generic" : item.confidence}
-                    </Badge>
+                    item.generic ? (
+                      <Badge variant="outline">generic</Badge>
+                    ) : (
+                      <ConfidenceBadge value={item.confidence} />
+                    )
                   ) : (
                     <Badge variant="destructive">gap</Badge>
                   )}
