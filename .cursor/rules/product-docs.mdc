@@ -1,21 +1,22 @@
 ---
-description: Keep README.md and docs/ARCHITECTURE.md current with the app
+description: Keep README.md, docs/ARCHITECTURE.md, and docs/DATABASE.md current with the app
 alwaysApply: true
 ---
 
 # Product docs
 
-A feature is not done until `README.md` and `docs/ARCHITECTURE.md` match the code. Update them **in the same change**; do not leave docs for a later pass.
+A feature is not done until the docs that apply match the code. Update them **in the same change**; do not leave docs for a later pass.
 
 - New or changed ingest, CLI flags, run commands, UI screens/routes, or project layout → `README.md`
-- New or changed data flow, components, data model, classification, quality flags, or scope → `docs/ARCHITECTURE.md`
-- A change that spans both (for example a new page backed by a new table) updates **both** files
-- Do not ship stale commands, missing screens, or architecture that describes a store or API that no longer exists
+- New or changed data flow, components, classification, quality flags, or scope → `docs/ARCHITECTURE.md`
+- New or changed tables, columns, keys, unique constraints, or foreign keys → `docs/DATABASE.md` (keep the Mermaid ER diagram in sync with `pipeline/models.py`)
+- A change that spans files (for example a new page backed by a new table) updates **every** file it affects
+- Do not ship stale commands, missing screens, architecture that describes a store or API that no longer exists, or an ER diagram that omits a table or column
 
 ```markdown
-# ❌ BAD — added `/transactions` and Postgres, left README saying Review queue is the only list and SQLite is the only store
+# ❌ BAD — added `/transactions`, Postgres, and `country.flag_emoji`; README still lists only Review queue, ARCHITECTURE still says SQLite-only, DATABASE.md has no `flag_emoji`
 
-# ✅ GOOD — README lists Overview, Transactions, Review queue (`?review_only=1`), record detail; ARCHITECTURE notes SQLite default and `DATABASE_URL` Postgres
+# ✅ GOOD — README lists Overview, Transactions, Review queue (`?review_only=1`), record detail; ARCHITECTURE notes SQLite default and `DATABASE_URL` Postgres; DATABASE.md ERD includes `flag_emoji`
 ```
 
-If only one file is affected, update that file and skip the other. Docs-only chores do not need new tests.
+If only one file is affected, update that file and skip the others. Docs-only chores do not need new tests.
